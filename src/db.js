@@ -1,4 +1,7 @@
-import mysql from 'promise-mysql';
+import mysql from 'mysql2';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const config = {
   host: process.env.DB_HOST,
@@ -8,6 +11,6 @@ const config = {
   connectionLimit: 100,
 };
 
-const pool = mysql.createPool(config);
+const pool = mysql.createPool(config).promise();
 
 export default pool;
