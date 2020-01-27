@@ -1,9 +1,8 @@
 import Router from 'koa-router';
+import Root from '../controllers/root';
 
 const router = new Router();
 
-router.get('/', ctx => {
-  ctx.body = 'root';
-});
+router.get('/', Root.getIndex);
 
 export default router;

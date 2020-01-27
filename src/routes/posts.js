@@ -1,35 +1,60 @@
 import Router from 'koa-router';
-import posts from '../models/posts';
+import datalize from 'datalize';
+import Posts from '../controllers/posts';
+
+const { field } = datalize;
 
 const router = new Router({ prefix: '/posts' });
 
 router
-  .get('/', async ctx => {
-    ctx.body = await posts.getAll();
-  })
+  .get('/', Posts.getAll)
 
-  .get('/:id', async ctx => {
-    const result = await posts.getById(ctx.params.id);
-    if (result) {
-      ctx.body = result;
-    } else {
-      ctx.status = 204;
-    }
-  })
+  .get(
+    '/:id',
+    datalize.params([
+      field('id')
+        .required()
+        .int(),
+    ]),
+    Posts.getById
+  )
 
-  .post('/', async ctx => {
-    ctx.status = 201;
-    ctx.body = await posts.create(ctx.request.body);
-  })
+  .post(
+    '/',
+    datalize([
+      field('title')
+        .trim()
+        .required()
+        .minLength(5),
+      field('text')
+        .trim()
+        .required()
+        .minLength(10),
+      field('authorId')
+        .required()
+        .int(),
+    ]),
+    Posts.create
+  )
 
-  .put('/:id', async ctx => {
-    ctx.status = 204;
-    ctx.body = await posts.update(ctx.params.id, ctx.request.body);
-  })
+  .put(
+    '/:id',
+    datalize.params([
+      field('id')
+        .required()
+        .int(),
+    ]),
+    Posts.update
+  )
 
-  .delete('/:id', async ctx => {
-    ctx.status = 204;
-    await posts.delete(ctx.params.id);
-  });
+  .delete(
+    '/:id',
+    datalize.params([
+      field('id')
+        .required()
+        .int(),
+    ]),
+    Posts.delete
+  );
 
 export default router;

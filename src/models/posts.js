@@ -4,13 +4,13 @@ const { POSTS_TABLE } = process.env;
 
 class Posts {
   static async getAll() {
-    const result = await Db.query(`SELECT * FROM ${POSTS_TABLE}`);
-    return result[0];
+    const [result] = await Db.query(`SELECT * FROM ${POSTS_TABLE}`);
+    return result;
   }
 
   static async getById(id) {
-    const result = await Db.query(`SELECT * FROM ${POSTS_TABLE} WHERE id=?`, [Number(id)]);
-    return result[0][0];
+    const [posts] = await Db.query(`SELECT * FROM ${POSTS_TABLE} WHERE id=?`, [Number(id)]);
+    return posts[0];
   }
 
   static async create(post) {
