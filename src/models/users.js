@@ -20,11 +20,7 @@ class Users {
       email,
     ]);
 
-    if (!userByEmail[0] || !bcrypt.compareSync(password, userByEmail[0].password)) {
-      throw new Error('Incorrect email or password');
-    }
-
-    return { status: 'success' };
+    return userByEmail[0] && bcrypt.compareSync(password, userByEmail[0].password);
   }
 }
 

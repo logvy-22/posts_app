@@ -7,8 +7,7 @@ class UsersController {
   }
 
   static async delete(ctx) {
-    ctx.body = await Users.delete(ctx.params.id);
-    ctx.body = { success: true };
+    await Users.delete(ctx.params.id);
   }
 }
 

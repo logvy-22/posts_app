@@ -28,7 +28,6 @@ class PostsController {
     const result = await Posts.delete(ctx.params.id);
     if (result) {
       ctx.status = 204;
-      ctx.body = { success: true };
     } else {
       throw Error("Can't delete post");
     }

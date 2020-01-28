@@ -10,8 +10,9 @@ export default async (ctx, next) => {
       ctx.status = 400;
       ctx.body = err.toJSON();
     } else {
-      ctx.status = 400;
-      ctx.body = `Error: ${err.message}`;
+      ctx.status = err.status || 500;
+      ctx.body = err.message;
+      ctx.app.emit('error', err, ctx);
     }
   }
 };
