@@ -4,7 +4,7 @@ import Auth from '../controllers/auth';
 
 const { field } = datalize;
 
-const router = new Router();
+const router = new Router({ prefix: '/auth' });
 
 router
   .post(

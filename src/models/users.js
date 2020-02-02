@@ -20,7 +20,11 @@ class Users {
       email,
     ]);
 
-    return userByEmail[0] && bcrypt.compareSync(password, userByEmail[0].password);
+    if (!userByEmail[0] || !bcrypt.compareSync(password, userByEmail[0].password)) {
+      return false;
+    }
+
+    return userByEmail[0];
   }
 }
 
