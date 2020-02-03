@@ -1,8 +1,16 @@
+import datalize from 'datalize';
 import Posts from '../models/posts';
+
+const { field } = datalize;
 
 class PostsController {
   static async getAll(ctx) {
-    ctx.body = await Posts.getAll();
+    try {
+      const posts = await Posts.getAll();
+      ctx.body = posts;
+    } catch (err) {
+      ctx.throw(err);
+    }
   }
 
   static async getById(ctx) {
@@ -15,22 +23,73 @@ class PostsController {
   }
 
   static async create(ctx) {
-    ctx.status = 201;
-    ctx.body = await Posts.create(ctx.request.body);
+    try {
+      const post = await Posts.create(ctx.form);
+      ctx.status = 201;
+      ctx.body = post;
+    } catch (err) {
+      ctx.throw(err);
+    }
   }
 
   static async update(ctx) {
-    ctx.status = 204;
-    ctx.body = await Posts.update(ctx.params.id, ctx.request.body);
+    try {
+      const post = await Posts.update(ctx.params.id, ctx.form);
+      ctx.status = 204;
+      ctx.body = post;
+    } catch (err) {
+      ctx.throw(err);
+    }
   }
 
   static async delete(ctx) {
-    const result = await Posts.delete(ctx.params.id);
-    if (result) {
+    try {
+      await Posts.delete(ctx.params.id);
       ctx.status = 204;
-    } else {
-      throw Error("Can't delete post");
+    } catch (err) {
+      ctx.throw(err);
     }
+  }
+
+  static validate(method) {
+    switch (method) {
+      case 'delete':
+      case 'getById':
+      case 'idInParams':
+        return datalize.params([
+          field('id')
+            .required()
+            .int(),
+        ]);
+      case 'update':
+        return datalize([
+          field('title')
+            .trim()
+            .required()
+            .minLength(5),
+          field('text')
+            .trim()
+            .required()
+            .minLength(10),
+        ]);
+      case 'create':
+        return datalize([
+          field('title')
+            .trim()
+            .required()
+            .minLength(5),
+          field('text')
+            .trim()
+            .required()
+            .minLength(10),
+          field('authorId')
+            .required()
+            .int(),
+        ]);
+      default:
+    }
+
+    return null;
   }
 }
 

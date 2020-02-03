@@ -1,60 +1,17 @@
 import Router from 'koa-router';
-import datalize from 'datalize';
 import Posts from '../controllers/posts';
-
-const { field } = datalize;
 
 const router = new Router({ prefix: '/posts' });
 
 router
   .get('/', Posts.getAll)
 
-  .get(
-    '/:id',
-    datalize.params([
-      field('id')
-        .required()
-        .int(),
-    ]),
-    Posts.getById
-  )
+  .get('/:id', Posts.validate('getById'), Posts.getById)
 
-  .post(
-    '/',
-    datalize([
-      field('title')
-        .trim()
-        .required()
-        .minLength(5),
-      field('text')
-        .trim()
-        .required()
-        .minLength(10),
-      field('authorId')
-        .required()
-        .int(),
-    ]),
-    Posts.create
-  )
+  .post('/', Posts.validate('create'), Posts.create)
 
-  .put(
-    '/:id',
-    datalize.params([
-      field('id')
-        .required()
-        .int(),
-    ]),
-    Posts.update
-  )
+  .put('/:id', Posts.validate('idInParams'), Posts.validate('update'), Posts.update)
 
-  .delete(
-    '/:id',
-    datalize.params([
-      field('id')
-        .required()
-        .int(),
-    ]),
-    Posts.delete
-  );
+  .delete('/:id', Posts.validate('delete'), Posts.delete);
 
 export default router;
