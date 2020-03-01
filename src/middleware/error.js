@@ -1,7 +1,5 @@
 import datalize from 'datalize';
 
-datalize.set('autoValidate', true);
-
 export default async (ctx, next) => {
   try {
     await next();
@@ -14,7 +12,7 @@ export default async (ctx, next) => {
       ctx.body = {
         error: err.originalError ? err.originalError.message : err.message,
       };
-      ctx.app.emit('error', err, ctx);
+      ctx.app.emit('error', err, ctx, err.stack);
     }
   }
 };

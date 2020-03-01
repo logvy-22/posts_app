@@ -1,5 +1,8 @@
 import Router from 'koa-router';
+import datalize from 'datalize';
 import Auth from '../controllers/auth';
+
+datalize.set('autoValidate', true);
 
 const router = new Router({ prefix: '/auth' });
 

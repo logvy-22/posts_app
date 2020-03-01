@@ -1,5 +1,8 @@
 import Router from 'koa-router';
+import datalize from 'datalize';
 import Posts from '../controllers/posts';
+
+datalize.set('autoValidate', true);
 
 const router = new Router({ prefix: '/posts' });
 

@@ -3,6 +3,7 @@ import logger from 'koa-morgan';
 import bodyParser from 'koa-bodyparser';
 import bearerToken from 'koa-bearer-token';
 import jwtMiddleware from 'koa-jwt';
+import serve from 'koa-static';
 import error from './middleware/error';
 import router from './routes';
 
@@ -10,7 +11,12 @@ const app = new Koa();
 
 app
   .use(logger('lite'))
-  .use(bodyParser())
+  .use(serve('../public'))
+  .use(
+    bodyParser({
+      multipart: true,
+    })
+  )
   .use(bearerToken())
   .use(error)
   .use(
@@ -19,6 +25,6 @@ app
     })
   )
   .use(router())
-  .listen(3000, () => {
-    console.log('listening on port 3000');
+  .listen(process.env.PORT, () => {
+    console.log(`listening on port ${process.env.PORT}`);
   });
