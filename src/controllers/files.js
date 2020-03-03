@@ -1,33 +1,67 @@
 import multer from '@koa/multer';
-import path from 'path';
-import appRoot from 'app-root-path';
+import datalize from 'datalize';
+import { usersStorage, postsStorage } from '../storage';
 import Files from '../models/files';
+import fileFilter from '../helpers/fileFilter';
 
-// Upload File Storage Path and File Naming
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, path.join(appRoot.path, '/public'));
-  },
-  filename(req, file, cb) {
-    const type = file.originalname.split('.')[1];
-    cb(null, `${file.fieldname}-${Date.now().toString(16)}.${type}`);
-  },
-});
+const { field } = datalize;
 
 // File upload restrictions
 const limits = {
-  fileSize: 500 * 1024, // File Size Unit b
-  files: 1, // Number of documents
+  fileSize: 500 * 1024,
+  files: 1,
 };
 
-const upload = multer({ storage, limits });
+const filesWithImages = /jpg|png|jpeg|doc|docx|pdf/;
+const images = /jpg|png|jpeg/;
+
+const uploadPostFile = multer({
+  storage: postsStorage,
+  limits,
+  fileFilter: (...arg) => fileFilter(...arg, filesWithImages),
+});
+const uploadUserImage = multer({
+  storage: usersStorage,
+  limits,
+  fileFilter: (...arg) => fileFilter(...arg, images),
+});
 
 class FilesController {
-  static async upload(ctx, next) {
+  static async uploadPostFile(ctx, next) {
     try {
-      await upload.single('streamfile')(ctx, next);
+      await uploadPostFile.single('file')(ctx, next);
     } catch (err) {
       ctx.throw(400, err.message);
+    }
+  }
+
+  static async uploadUserFile(ctx, next) {
+    try {
+      await uploadUserImage.single('file')(ctx, next);
+    } catch (err) {
+      ctx.throw(400, err.message);
+    }
+  }
+
+  static async attachToPost(ctx) {
+    const { path } = ctx.request.file;
+
+    try {
+      Files.add({ path, postId: ctx.params.id });
+      ctx.status = 200;
+    } catch (err) {
+      ctx.throw(err);
+    }
+  }
+
+  static async attachToUser(ctx) {
+    const { path } = ctx.request.file;
+
+    try {
+      Files.add({ path, userId: ctx.params.id });
+      ctx.status = 200;
+    } catch (err) {
+      ctx.throw(err);
     }
   }
 
@@ -42,7 +76,7 @@ class FilesController {
 
   static async getPostFiles(ctx) {
     try {
-      const posts = await Files.getAllPostFiles(ctx.params.id);
+      const posts = await Files.getPostFiles(ctx.params.id);
       ctx.body = posts;
     } catch (err) {
       ctx.throw(err);
@@ -51,19 +85,8 @@ class FilesController {
 
   static async getUserFiles(ctx) {
     try {
-      const posts = await Files.getAllUserFiles(ctx.params.id);
+      const posts = await Files.getUserFiles(ctx.params.id);
       ctx.body = posts;
-    } catch (err) {
-      ctx.throw(err);
-    }
-  }
-
-  static async attach(ctx) {
-    const { body, file } = ctx.request;
-
-    try {
-      Files.add({ path: file.path, ...body });
-      ctx.status = 200;
     } catch (err) {
       ctx.throw(err);
     }
@@ -76,6 +99,20 @@ class FilesController {
     } catch (err) {
       ctx.throw(err);
     }
+  }
+
+  static validate(method) {
+    switch (method) {
+      case 'idInParams':
+        return datalize.params([
+          field('id')
+            .required()
+            .int(),
+        ]);
+      default:
+    }
+
+    return null;
   }
 }
 

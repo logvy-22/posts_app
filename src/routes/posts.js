@@ -1,6 +1,7 @@
 import Router from 'koa-router';
 import datalize from 'datalize';
 import Posts from '../controllers/posts';
+import Files from '../controllers/files';
 
 datalize.set('autoValidate', true);
 
@@ -13,7 +14,7 @@ router
 
   .post('/', Posts.validate('create'), Posts.create)
 
-  .put('/:id', Posts.validate('idInParams'), Posts.validate('update'), Posts.update)
+  .post('/:id/attachFile', Files.validate('idInParams'), Files.uploadPostFile, Files.attachToPost)
 
   .delete('/:id', Posts.validate('delete'), Posts.delete);
 
