@@ -1,35 +1,13 @@
-import multer from '@koa/multer';
 import datalize from 'datalize';
-import { usersStorage, postsStorage } from '../storage';
 import Files from '../models/files';
-import fileFilter from '../helpers/fileFilter';
+import FilesService from '../services/files';
 
 const { field } = datalize;
-
-// File upload restrictions
-const limits = {
-  fileSize: 500 * 1024,
-  files: 1,
-};
-
-const filesWithImages = /jpg|png|jpeg|doc|docx|pdf/;
-const images = /jpg|png|jpeg/;
-
-const uploadPostFile = multer({
-  storage: postsStorage,
-  limits,
-  fileFilter: (...arg) => fileFilter(...arg, filesWithImages),
-});
-const uploadUserImage = multer({
-  storage: usersStorage,
-  limits,
-  fileFilter: (...arg) => fileFilter(...arg, images),
-});
 
 class FilesController {
   static async uploadPostFile(ctx, next) {
     try {
-      await uploadPostFile.single('file')(ctx, next);
+      await FilesService.uploadPostFile(ctx, next);
     } catch (err) {
       ctx.throw(400, err.message);
     }
@@ -37,7 +15,7 @@ class FilesController {
 
   static async uploadUserFile(ctx, next) {
     try {
-      await uploadUserImage.single('file')(ctx, next);
+      await FilesService.uploadUserImage(ctx, next);
     } catch (err) {
       ctx.throw(400, err.message);
     }
@@ -92,12 +70,28 @@ class FilesController {
     }
   }
 
-  static async delete(ctx) {
+  static async deleteFile(ctx) {
     try {
-      const posts = await Files.delete(ctx.params.id);
-      ctx.body = posts;
+      FilesService.deleteFile(ctx.filePath);
+      ctx.status = 204;
     } catch (err) {
       ctx.throw(err);
+    }
+  }
+
+  static async deleteFromDB(ctx, next) {
+    try {
+      const file = await Files.getById(ctx.params.id);
+      if (!file) {
+        throw new Error('File not found');
+      }
+
+      await Files.delete(ctx.params.id);
+
+      ctx.filePath = file.path;
+      next();
+    } catch (err) {
+      ctx.throw(400, err);
     }
   }
 

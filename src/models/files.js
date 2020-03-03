@@ -8,6 +8,11 @@ class Files {
     return files;
   }
 
+  static async getById(id) {
+    const [files] = await Db.query(`SELECT * FROM ${FILES_TABLE} WHERE id=?`, [Number(id)]);
+    return files[0];
+  }
+
   static async getPostFiles(id) {
     const [files] = await Db.query(`SELECT * FROM ${FILES_TABLE} WHERE postId=?`, [Number(id)]);
     return files;

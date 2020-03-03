@@ -16,6 +16,8 @@ router
 
   .post('/:id/attachFile', Files.validate('idInParams'), Files.uploadPostFile, Files.attachToPost)
 
+  .delete('/deleteFile/:id', Files.validate('idInParams'), Files.deleteFromDB, Files.deleteFile)
+
   .delete('/:id', Posts.validate('delete'), Posts.delete);
 
 export default router;
