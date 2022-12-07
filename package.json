@@ -12,7 +12,7 @@
     "@koa/multer": "^2.0.2",
     "app-root-path": "^3.0.0",
     "bcrypt": "^3.0.7",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "datalize": "^0.3.4",
     "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
